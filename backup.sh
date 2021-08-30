@@ -6,7 +6,7 @@ set -ex
 # default if none exists.
 : "${DATA_FOLDER:=/data}"
 : "${ATTACHMENTS_FOLDER:=${DATA_FOLDER}/attachments}"
-: "${DATABASE_URL:=${DATA_FOLDER}/db.sqlite3}}"
+: "${DATABASE_URL:=${DATA_FOLDER}/db.sqlite3}"
 : "${CONFIG_FILE:=${DATA_FOLDER}/config.json}"
 : "${RSA_KEY_FILENAME:=${DATA_FOLDER}/rsa_key}"
 : "${SENDS_FOLDER:=${DATA_FOLDER}/sends}"
@@ -29,16 +29,26 @@ mkdir -p "${BACKUP_DIR_PATH}"
 # but to minimize the possibility of a failed backup, implement a retry mechanism here.
 max_tries=10
 tries=0
-until sqlite3 "file:${DATABASE_URL}?mode=ro" ".backup '${BACKUP_DIR_PATH}/${DATABASE_URL##*/}'"; do
-    tries=$((tries+1))
-    if [ "$tries" -ge "$max_tries" ]; then
-        echo "Aborting after ${max_tries} failed backup attempts..."
-        exit 1
-    fi
-    echo "Backup failed. Retry #${tries}..."
-    rm -f "${BACKUP_DIR_PATH}/${DATABASE_URL##*/}"
-    sleep 1
-done
+
+case "${DATABASE_URL}" in
+mysql://*|postgresql://*)
+    echo "WARNING: Backup MySQL and PostgreSQL DB is not supported." \
+        "Backup without database dump will be incomplete!" >&2
+    ;;
+*)
+    until sqlite3 "file:${DATABASE_URL}?mode=ro" ".backup '${BACKUP_DIR_PATH}/${DATABASE_URL##*/}'"; do
+        tries=$((tries+1))
+        if [ "$tries" -ge "$max_tries" ]; then
+            echo "Aborting after ${max_tries} failed backup attempts..." >&2
+            exit 1
+        fi
+        echo "Backup failed. Retry #${tries}..." >&2
+        rm -f "${BACKUP_DIR_PATH}/${DATABASE_URL##*/}"
+        sleep 1
+    done
+    ;;
+esac
+
 
 for i in \
     "$ATTACHMENTS_FOLDER" \
