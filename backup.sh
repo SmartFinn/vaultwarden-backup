@@ -77,3 +77,10 @@ if [ -n "${GPG_PASSPHRASE}" ]; then
         rm "${BACKUP_FILE_PATH}"
     fi
 fi
+
+# Purge old local backups
+if [ "${DELETE_BACKUP_AFTER}" -gt 0 ]; then
+    find "${BACKUP_ROOT}/${BACKUP_FILE_DIR}" \
+        -name 'vaultwarden-*.tar.*' \
+        -mtime "+${DELETE_BACKUP_AFTER}" -delete
+fi
