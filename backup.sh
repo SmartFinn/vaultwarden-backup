@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 # Use the value of the corresponding environment variable, or the
 # default if none exists.
@@ -59,8 +59,8 @@ for i in \
     "$RSA_KEY_FILENAME.pub.pem" \
     "$SENDS_FOLDER"
 do
-    if [ -e "${DATA_FOLDER}/$i" ]; then
-        cp -a "$DATA_FOLDER/$i" "${BACKUP_DIR_PATH}"
+    if [ -e "$i" ]; then
+        cp -a "$i" "${BACKUP_DIR_PATH}"
     fi
 done
 
