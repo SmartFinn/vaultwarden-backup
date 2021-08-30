@@ -84,3 +84,11 @@ if [ "${DELETE_BACKUP_AFTER}" -gt 0 ]; then
         -name 'vaultwarden-*.tar.*' \
         -mtime "+${DELETE_BACKUP_AFTER}" -delete
 fi
+
+# Override owner and group for archives if one of the variable is set
+if [ "$(id -u)" -eq 0 ] && {
+        [ -n "$OVERRIDE_UID" ] || [ -n "$OVERRIDE_GID" ]
+    }
+then
+    chown -R "${OVERRIDE_UID}:${OVERRIDE_GID}" "${BACKUP_ROOT}/${BACKUP_FILE_DIR}"
+fi
