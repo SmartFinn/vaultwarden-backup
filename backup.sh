@@ -66,16 +66,14 @@ done
 
 tar -caf "${BACKUP_FILE_PATH}" -C "${BACKUP_ROOT}" "${BACKUP_DIR_NAME}"
 rm -rf "${BACKUP_DIR_PATH}"
-md5sum "${BACKUP_FILE_PATH}"
-sha1sum "${BACKUP_FILE_PATH}"
 
 if [ -n "${GPG_PASSPHRASE}" ]; then
     # https://gnupg.org/documentation/manuals/gnupg/GPG-Esoteric-Options.html
     # Note: Add `--pinentry-mode loopback` if using GnuPG 2.1.
     printf '%s' "${GPG_PASSPHRASE}" |
         gpg -c --cipher-algo "${GPG_CIPHER_ALGO:-AES128}" --batch --passphrase-fd 0 "${BACKUP_FILE_PATH}"
-    BACKUP_FILE_NAME="$BACKUP_FILE_NAME.gpg"
-    BACKUP_FILE_PATH="$BACKUP_FILE_PATH.gpg"
-    md5sum "${BACKUP_FILE_PATH}"
-    sha1sum "${BACKUP_FILE_PATH}"
+
+    if [ -s "${BACKUP_FILE_PATH}.gpg" ]; then
+        rm "${BACKUP_FILE_PATH}"
+    fi
 fi
