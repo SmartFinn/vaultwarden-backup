@@ -10,6 +10,7 @@ set -e
 : "${CONFIG_FILE:=${DATA_FOLDER}/config.json}"
 : "${RSA_KEY_FILENAME:=${DATA_FOLDER}/rsa_key}"
 : "${SENDS_FOLDER:=${DATA_FOLDER}/sends}"
+: "${DELETE_BACKUP_AFTER_DAYS:=0}"
 
 : "${BACKUP_ROOT:=/backup}"
 
@@ -79,10 +80,10 @@ if [ -n "${GPG_PASSPHRASE}" ]; then
 fi
 
 # Purge old local backups
-if [ "${DELETE_BACKUP_AFTER}" -gt 0 ]; then
+if [ "${DELETE_BACKUP_AFTER_DAYS}" -gt 0 ]; then
     find "${BACKUP_ROOT}/${BACKUP_FILE_DIR}" \
         -name 'vaultwarden-*.tar.*' \
-        -mtime "+${DELETE_BACKUP_AFTER}" -delete
+        -mtime "+${DELETE_BACKUP_AFTER_DAYS}" -delete
 fi
 
 # Override owner and group for archives if one of the variable is set
