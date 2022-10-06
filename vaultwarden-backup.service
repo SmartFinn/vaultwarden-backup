@@ -1,0 +1,14 @@
+[Unit]
+Description=Create Vaultwarden backup
+ConditionPathExists=/usr/bin/docker
+# Replace `%h/vaultwarden/archives` to path where archives stored
+ConditionPathExists=%h/vaultwarden/archives
+
+[Service]
+# Environment=DATA_FOLDER=/data
+# Environment=GPG_PASSPHRASE=
+# Environment=DELETE_BACKUP_AFTER_DAYS=14
+# Environment=OVERRIDE_UID=1000
+# Environment=OVERRIDE_GID=1000
+Type=oneshot
+ExecStart=/usr/bin/docker run --rm --volumes-from=vaultwarden --volume=%h/vaultwarden/archives:/backup/archives ghcr.io/smartfinn/vaultwarden-backup
